@@ -1,0 +1,13 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+<body style="background-image: url('https://img.20mn.fr/Qi7fy4zAT62bnbwI3CAyNik/1444x920_shopping-in-a-supermarket-from-the-food-shelves-to-the-various-products-the-consumers-do-their-shopping-september-5-2022-toulouse-france-courses-dans-un-supermarche-des-rayons-d-alimentation-aux-produits-divers-les-consommateurs-realisent-leurs-courses-5-septembre-2022-toulouse-france-scheiber-courses1864-2209151733-credit-fred-scheiber-sipa-2209151739');">
+<div class="row justify-content-center align-items-center" style="height: 100vh;">
+    <div class="col-md-8 text-center bg-white">
+        <h3 class="text-white bg-success">Salut Mr/Mme {{ name }}.</h3>
+        <h4 class="text-white bg-primary">Merci {{ name }} pour la confiance. Nous avons reçu votre commande. Le délai de livraison est de 24 heures.</h4>
+        <h4 class="text-white bg-warning">Bonne suite à vous Mr/Mme {{ name }}. On espère vous revoire bientot</h4>
+    </div>
+</div>
+</body>
+{% endblock %}

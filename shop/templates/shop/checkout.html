@@ -1,0 +1,182 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+  <div class="row col-md-12 d-flex">
+    <div class="row mt-5">
+      <div class="col-md-12">
+        <h1 class="text-center">Votre panier</h1>
+          <table class="table">
+              <thead>
+                  <tr class="bg-primary">
+                      <th>Produit</th>
+                      <th>Prix unitaire</th>
+                      <th>Quantité</th>
+                      <th class="text-center">Prix</th>
+                      <th class="text-center">Supprimer</th>
+                  </tr>
+              </thead>
+              <tbody id="item-list">
+              </tbody>
+          </table>
+      </div>
+    </div>
+
+
+    <div class="row col-md-5 ml-auto mt-5 bg-dark text-white">
+      <form method="POST">
+        {% csrf_token %}
+        <input type="hidden" id="items" name="items" >
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="inputName">Nom</label>
+            <input type="text" class="form-control" id="nom" name="nom">
+          </div>
+          <div class="form-group col-md-6">
+            <label>Email</label>
+            <input type="email" class="form-control" id="email" name="email">
+          </div>
+        </div>
+        <label for="inputState">Pays</label>
+            <select id="pays" name="pays" class="form-control">
+              <option selected>Burkina Faso</option>
+              <option>Cote d'ivoire</option>
+              <option>Mali</option>
+              <option>Togo</option>
+              <option>Niger</option>
+              <option>Benin</option>
+              <option>Ghana</option>
+            </select>
+        <div class="form-group">
+          <label for="input">Ville</label>
+          <input type="text" class="form-control" id="ville" name="ville" placeholder="">
+        </div>
+
+        
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="inputCity">Adresse</label>
+            <input type="text" class="form-control" id="adresse" name="adresse" >
+          </div>
+          <div class="form-group col-md-6">
+            <label >Montant à payer</label>
+            <input type="readonly" class="form-control bg-primary text-warning" id="total" name="total" >
+          </div> 
+        </div>
+
+        <!-- <div class="form-row">
+           
+        </div> -->
+        
+        <button type="submit" class="btn btn-primary">Commander</button>
+        
+      </form>
+      <button id="paypal-button">Continuer avec PayPal</button>
+    </div>
+  </div>
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+  // Fonction pour gérer la suppression d'un produit
+  function deleteProduct(item) {
+    // Demander confirmation
+    if (confirm("Voulez-vous supprimer ce produit?")) {
+      // Récupérer les détails du produit
+      let nom = panier[item][1];
+      let quantite = panier[item][0];
+      let prix = panier[item][2];
+
+      // Mettre à jour la quantité totale et le prix
+      nombre -= quantite;
+      total -= prix;
+
+      // Supprimer le produit du panier
+      delete panier[item];
+
+      // Supprimer le produit de la liste
+      $(`#${item}`).remove();
+
+      // Mettre à jour le localStorage
+      localStorage.setItem('panier', JSON.stringify(panier));
+
+      // Actualiser le panier affiché
+      refreshCart();
+
+      // Mettre à jour le contenu du span avec l'id "increment"
+      var incrementSpan = document.getElementById('increment');
+      incrementSpan.textContent = parseInt(incrementSpan.textContent) - 1;
+    }
+}
+
+  // Fonction pour actualiser le panier affiché
+  function refreshCart() {
+      // Vider le tableau
+      $('#item-list').empty();
+
+      // Parcourir les articles dans le panier
+      for (item in panier) {
+          let nom = panier[item][1];
+          let quantite = panier[item][0];
+          let prix = panier[item][2];
+
+          // Afficher les détails du produit
+          let itemString = `<tr>
+                              <td class="bg-primary"><strong>${nom}</strong></td>
+                              <td class="bg-warning"><strong>${prix/quantite} FCFA</strong></td>
+                              <td class="text-center bg-primary"><strong>
+                                <button class="btn btn-sm btn-primary" onclick="decreaseQuantity('${item}')">-</button>
+                                <span id="quantity-${item}">${quantite}</span>
+                                <button class="btn btn-sm btn-primary" onclick="increaseQuantity('${item}')">+</button>
+                              </strong></td>
+                              <td class="bg-warning text-center"><strong>${prix} FCFA</strong></td>
+                              <td class="text-center bg-primary"><button class="btn btn-danger" onclick="deleteProduct('${item}')"><i class="bi bi-trash" style="font-size: 10px;"></i></button></td>
+                            </tr>`;
+          $('#item-list').append(itemString);
+      }
+
+      // Mettre à jour la quantité totale et le prix
+      let itemNombre = `<tr>
+                          <td class="bg-warning"><strong>Quantité Total : ${nombre}</strong></td>
+                          <td class="bg-warning"></td>
+                          <td class="bg-warning"></td>
+                          <td class="bg-warning"><strong> Total : ${total} FCFA</strong></td>
+                          <td class="bg-primary"></td> <!-- Colonne vide pour l'alignement -->
+                      </tr>`;
+      $('#item-list').append(itemNombre);
+
+      // Mettre à jour le champ de saisie du prix total
+      $('#total').val(total + " FCFA");
+  }
+
+  function increaseQuantity(item) {
+        panier[item][0]++;
+        total += panier[item][2];
+        nombre++;
+        refreshCart();
+    }
+
+  function decreaseQuantity(item) {
+      if (panier[item][0] > 1) {
+          panier[item][0]--;
+          total -= panier[item][2];
+          nombre--;
+          refreshCart();
+      } else {
+          // Supprimer le produit du panier si la quantité atteint zéro
+          deleteProduct(item);
+      }
+  }
+
+  // Calculs initiaux et affichage du panier
+  var panier = localStorage.getItem('panier') ? JSON.parse(localStorage.getItem('panier')) : {};
+  var total = 0;
+  var nombre = 0;
+  for (item in panier) {
+      let quantite = panier[item][0];
+      let prix = panier[item][2];
+      nombre += quantite;
+      total += prix;
+  }
+  refreshCart();
+</script>
+
+{% endblock %}

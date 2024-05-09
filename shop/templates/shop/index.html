@@ -1,0 +1,184 @@
+{% extends "shop/base.html" %}
+
+{% block content %}
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  
+    <div class="row">
+        <div class="col-md-12">
+            <form class="card card-sm bg-primary">
+                <div class="card-body row no-gutters align-items-center">
+                    <div class="col">
+                        <input type="search" placeholder="Entrer le nom du produit que vous chercher" name="item-name" class="form-control form-control-borderless">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-dark glyphicon glyphicon-search "> Recherche</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="container mt-2 ">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{{ product_object.paginator.object_list.first.image }}" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product_object.paginator.object_list.first.title }}</h5>
+                        <p class="card-text">Prix : {{ product_object.paginator.object_list.first.price }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 bg-primary">
+                <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000"> <!-- Centrage horizontal -->
+                    <div class="carousel-inner">
+                        {% for product in product_object.paginator.object_list|dictsort:"price" %}
+                            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                <img src="{{ product.image }}" alt="" class="d-block w-100" style="height: 400px;">
+                            </div>
+                        {% endfor %}
+                        <strong><p class="text-white text-center mt-2" style="font-family: 'Times New Roman', Times, serif;">Nos différents produits de cette page</p></strong>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <img src="{{ product_object.paginator.object_list.last.image }}" class="card-img-top" alt="">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product_object.paginator.object_list.last.title }}</h5>
+                        <p class="card-text">Prix : {{ product_object.paginator.object_list.last.price }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="color-changing-row" class="row mt-3">
+        {% for product in product_object.paginator.object_list %}
+        <div class="col-md-3 mt-2">
+            <div class="card h-100" style="transition: box-shadow 0.3s ease-in-out; box-shadow: 0 0 15px 5px rgba(90, 163, 214, 0.5); ">
+                <img src="{{ product.image }}" alt="" class="card-img-top" style="width: 292px; height: 400px;">
+                <div class="card-body">
+                    <div id="aa{{ product.id }}" class="card-title text-center">{{ product.title }}</div>
+                    <div class="d-flex justify-content-center">
+                        <h5 style="color: darkorange;">Prix: </h5>
+                        <div style="color: darkorange; font-weight: bold;" id="price{{ product.id }}" class="card-text ml-2 "> {{ product.price }} </div>
+                        <h5 style="color: darkorange;" class="ml-2"> FCFA </h5>
+                    </div>
+                    <div class="">
+                        <a href="{% url 'detail' myid=product.id %}" class="btn btn-primary ">Voire</a>
+                        <button id="{{ product.id  }}"  class="btn ajout btn-success ml-2">Ajouter</button>
+                        <a href="{% url 'commenter_produit' produit_id=product.id %}">Commenter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-3 offset-md-4">
+            <ul class="pagination">
+                {% if product_object.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ product_object.previous_page_number }}">Precedent</a>
+                </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <a class="page-link" href="?page= {{ product_object.number}} ">{{product_object.number}}</a>
+                </li>
+
+                {% if product_object.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{product_object.next_page_number}}">Suivant</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block js %}
+<script type="text/javascript">
+    function mettreAJourPanier(panier) {
+    localStorage.setItem('panier', JSON.stringify(panier));
+}
+
+// Fonction pour récupérer et afficher la valeur du panier depuis le localStorage
+function afficherNombreArticlesPanier() {
+    var panier = JSON.parse(localStorage.getItem('panier')) || {};
+    var nombreArticles = Object.keys(panier).length;
+    $('.badge').text(nombreArticles);
+}
+
+$(document).ready(function() {
+    // Afficher le nombre d'articles du panier sur toutes les pages
+    afficherNombreArticlesPanier();
+
+    $('.ajout').click(function(e) {
+        e.preventDefault();
+        var item_id = this.id.toString();
+        var panier = {};
+
+        // Vérifiez si le localStorage contient déjà des éléments dans le panier
+        if (localStorage.getItem('panier') != null) {
+            panier = JSON.parse(localStorage.getItem('panier'));
+        }
+
+        var quantite;
+        var prix;
+        var name;
+
+        if (panier[item_id] !== undefined) {
+            quantite = panier[item_id][0] + 1;
+            panier[item_id][0] = quantite;
+            panier[item_id][2] += parseFloat(document.getElementById("price" + item_id).innerHTML);
+        } else {
+            quantite = 1;
+            prix = parseFloat(document.getElementById("price" + item_id).innerHTML);
+            name = document.getElementById("aa" + item_id).innerHTML;
+            panier[item_id] = [quantite, name, prix];
+        }
+
+        // Mettre à jour le panier dans le localStorage
+        mettreAJourPanier(panier);
+
+        // Met à jour le contenu du span avec le nombre d'articles dans le panier
+        afficherNombreArticlesPanier();
+    });
+});
+
+
+
+
+    
+    var colors = ["bg-primary", "bg-secondary", "bg-success", "bg-danger", "bg-warning", "bg-info", "bg-white", "bg-dark"];
+
+    // Fonction pour changer la couleur de fond de la div
+    function changeBackgroundColor() {
+        var row = document.getElementById("color-changing-row");
+        var currentClasses = row.className.split(" "); // Obtenez toutes les classes de la div
+        var currentColor = currentClasses.find(className => colors.includes(className)); // Trouvez la classe de couleur actuelle
+
+        var currentIndex = colors.indexOf(currentColor); // Trouvez l'index de la classe actuelle dans le tableau colors
+        var nextIndex = (currentIndex + 1) % colors.length; // Calculer l'index de la prochaine couleur
+        var nextColor = colors[nextIndex]; // Obtenez la prochaine couleur à partir du tableau
+
+        // Supprimez la classe de couleur actuelle et ajoutez la prochaine couleur
+        row.classList.remove(currentColor);
+        row.classList.add(nextColor);
+    }
+
+    // Appelez la fonction pour la première fois
+    changeBackgroundColor();
+
+    // Définissez l'intervalle pour changer la couleur toutes les 3 secondes
+    setInterval(changeBackgroundColor, 3000);
+    
+</script>
+
+
+{% endblock %}
+
