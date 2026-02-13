@@ -3,60 +3,6 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import client, Profile, Commentaire
 from django.contrib.auth import get_user_model
 
-# class ClientRegistrationForm(UserCreationForm):
-#     password1 = forms.CharField(widget=forms.PasswordInput, label='Mot de passe')
-#     password2 = forms.CharField(widget=forms.PasswordInput, label='Confirmer le mot de passe')
-
-#     class Meta:
-#         model = Client
-#         fields = ['nom', 'prenom', 'ville', 'email', 'adress', 'password2']  # Ajoutez d'autres champs si nécessaire
-
-#     def clean_password2(self):
-#         password1 = self.cleaned_data.get("password1")
-#         password2 = self.cleaned_data.get("password2")
-#         if password1 and password2 and password1 != password2:
-#             raise forms.ValidationError("Les mots de passe ne correspondent pas.")
-#         return password2
-
-# class ClientRegistrationForm(UserCreationForm):
-#     password1 = forms.CharField(widget=forms.PasswordInput, label='Mot de passe')
-#     password2 = forms.CharField(widget=forms.PasswordInput, label='Confirmer le mot de passe')
-
-#     class Meta:
-#         model = Client
-#         fields = ['nom', 'prenom', 'email', 'ville', 'adresse']  # Inclure les champs nécessaires dans le formulaire
-
-#     def clean_password2(self):
-#         password1 = self.cleaned_data.get("password1")
-#         password2 = self.cleaned_data.get("password2")
-#         if password1 and password2 and password1 != password2:
-#             raise forms.ValidationError("Les mots de passe ne correspondent pas.")
-#         return password2
-# Client=get_user_model()
-# class ClientRegistrationForm(UserCreationForm):
-#     class Meta:
-#         model = Client
-#         fields ="__all__"  # Inclure les champs nécessaires dans le formulaire
-
-    # def clean_password2(self):
-    #     password1 = self.cleaned_data.get("password1")
-    #     password2 = self.cleaned_data.get("password2")
-    #     if password1 and password2 and password1 != password2:
-    #         raise forms.ValidationError("Les mots de passe ne correspondent pas.")
-    #     return password2
-
-# class ClientRegistrationForm(UserCreationForm):
-#     password_confirm = forms.CharField(label="Confirmer le mot de passe", widget=forms.PasswordInput)
-#     class Meta:
-#         model = Client
-#         fields = ['nom', 'prenom', 'email', 'ville', 'adresse', 'password1', 'password2']  # Champs à inclure dans le formulaire
-
-#     def __init__(self, *args, **kwargs):
-#         super(ClientRegistrationForm, self).__init__(*args, **kwargs)
-#         # Personnalisation des étiquettes des champs si nécessaire
-#         self.fields['password1'].label = 'Mot de passe'
-#         self.fields['password2'].label = 'Confirmer le mot de passe'
-
 class ClientForm(forms.ModelForm):
     class Meta:
         model = client
