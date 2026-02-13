@@ -84,11 +84,6 @@ class Profile(models.Model):
     pays = models.CharField(max_length=300, default='')
     ville = models.CharField(max_length=300, default='')
     adresse = models.CharField(max_length=300, default='')
-
-    # def save(self, *args, **kwargs):
-    #     # Générer une chaîne de requête aléatoire pour éviter la mise en cache
-    #     self.photo_url = f'{self.photo.url}?v={get_random_string(length=8)}' if self.photo else None
-    #     super(Profile, self).save(*args, **kwargs)
     
 
 class Commande(models.Model):
